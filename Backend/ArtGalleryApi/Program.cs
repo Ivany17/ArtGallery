@@ -3,6 +3,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -19,12 +24,29 @@ var artworks = new List<ArtPiece>
     new ArtPiece(2, "Mona Lisa", "Leonardo da Vinci", 1503, "mona_lisa.jpg")
 };
 
+app.UseCors("AllowAll");
+
 app.MapGet("/artworks", () =>
 {
     return artworks;
 })
 .WithName("GetArtworks")
 .WithOpenApi();
+
+app.MapPost("/artworks", (ArtPiece newArt) =>
+{
+    artworks.Add(newArt);
+    return Results.Created($"/artworks/{newArt.Id}", newArt);
+});
+
+app.MapDelete("/artworks/{id}", (int id) =>
+{
+    var art = artworks.FirstOrDefault(a => a.Id == id);
+    if (art is null) return Results.NotFound();
+
+    artworks.Remove(art);
+    return Results.NoContent();
+});
 
 app.Run();
 
