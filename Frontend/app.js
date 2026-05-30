@@ -13,6 +13,14 @@ fetch('http://localhost:5215/artworks')
                 <p>Year: ${art.year}</p>
                 <button onclick="deleteArt(${art.id})">Delete</button>
             `;
+            // Update this section inside your fetch .then() block in app.js
+            div.innerHTML = `
+                <h3>${art.title}</h3>
+                <p>Artist: ${art.artist}</p>
+                <p>Year: ${art.year}</p>
+                <button onclick="deleteArt(${art.id})">Delete</button>
+                <button onclick="editArt(${art.id})">Edit</button> 
+            `;
             gallery.appendChild(div);
         });
     });
@@ -48,4 +56,24 @@ function deleteArt(id) {
     .then(() => {
         location.reload();
     });
+}
+
+function editArt(id) {
+    const newYear = prompt("Enter new year:");
+    if (!newYear) return;
+
+    // Find the current artwork to get its other details
+    fetch(`http://localhost:5215/artworks`)
+        .then(res => res.json())
+        .then(data => {
+            const art = data.find(a => a.Id === id);
+            art.Year = parseInt(newYear);
+
+            fetch(`http://localhost:5215/artworks/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(art)
+            })
+            .then(() => location.reload());
+        });
 }

@@ -35,6 +35,10 @@ app.MapGet("/artworks", () =>
 
 app.MapPost("/artworks", (ArtPiece newArt) =>
 {
+    if (string.IsNullOrWhiteSpace(newArt.Title) || newArt.Year <= 0)
+    {
+        Results.BadRequest("Invalid data");
+    }
     artworks.Add(newArt);
     return Results.Created($"/artworks/{newArt.Id}", newArt);
 });
@@ -46,6 +50,15 @@ app.MapDelete("/artworks/{id}", (int id) =>
 
     artworks.Remove(art);
     return Results.NoContent();
+});
+
+app.MapPut("/artworks/{id}", (int id, ArtPiece updatedArt) =>
+{
+    var index = artworks.FindIndex(a => a.Id == id);
+    if (index == -1) return Results.NotFound();
+
+    artworks[index] = updatedArt;
+    return Results.Ok(updatedArt);
 });
 
 app.Run();
