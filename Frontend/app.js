@@ -1,34 +1,30 @@
-// 1. Fetch and render the gallery
-fetch('http://localhost:5215/artworks')
-    .then(response => response.json())
-    .then(data => {
-        const gallery = document.getElementById('gallery');
-        gallery.innerHTML = ''; // Clear gallery first
+const API_URL = 'http://localhost:5215/artworks';
 
-        data.forEach(art => {
-            const div = document.createElement('div');
-            div.innerHTML = `
-                <h3>${art.title}</h3>
-                <p>Artist: ${art.artist}</p>
-                <p>Year: ${art.year}</p>
-                <button onclick="deleteArt(${art.id})">Delete</button>
-            `;
-            // Update this section inside your fetch .then() block in app.js
-            div.innerHTML = `
-                <h3>${art.title}</h3>
-                <p>Artist: ${art.artist}</p>
-                <p>Year: ${art.year}</p>
-                <button onclick="deleteArt(${art.id})">Delete</button>
-                <button onclick="editArt(${art.id})">Edit</button> 
-            `;
-            gallery.appendChild(div);
-        });
+// 1. Fetch and render the gallery
+async function loadGallery() {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = '';
+
+    data.forEach(art => {
+        const div = document.createElement('div');
+        div.className = 'art-card'; // We will use this for CSS later
+        div.innerHTML = `
+            <h3>${art.title}</h3>
+            <p>Artist: ${art.artist}</p>
+            <p>Year: ${art.year}</p>
+            <button onclick="deleteArt(${art.id})">Delete</button>
+            <button onclick="editArt(${art.id})">Edit</button>
+        `;
+        gallery.appendChild(div);
     });
+}
 
 // 2. Handle form submission (Create)
-document.getElementById('artForm').addEventListener('submit', (e) => {
+document.getElementById('artForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const newArt = {
         id: parseInt(document.getElementById('id').value),
         title: document.getElementById('title').value,
@@ -37,43 +33,43 @@ document.getElementById('artForm').addEventListener('submit', (e) => {
         imageUrl: document.getElementById('imageUrl').value
     };
 
-    fetch('http://localhost:5215/artworks', {
+    await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newArt)
-    })
-    .then(() => {
-        alert("Artwork added!");
-        location.reload();
     });
+    
+    location.reload();
 });
 
+// Load the gallery on startup
+loadGallery();
+
 // 3. Handle delete operation (Delete)
-function deleteArt(id) {
-    fetch(`http://localhost:5215/artworks/${id}`, {
+async function deleteArt(id) {
+    await fetch(`${API_URL}/${id}`, {
         method: 'DELETE'
-    })
-    .then(() => {
-        location.reload();
     });
+    location.reload();
 }
 
-function editArt(id) {
+async function editArt(id) {
     const newYear = prompt("Enter new year:");
     if (!newYear) return;
 
-    // Find the current artwork to get its other details
-    fetch(`http://localhost:5215/artworks`)
-        .then(res => res.json())
-        .then(data => {
-            const art = data.find(a => a.Id === id);
-            art.Year = parseInt(newYear);
+    // Fetch the specific item first
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    const art = data.find(a => a.id === id); // Ensure this matches your C# record property casing
 
-            fetch(`http://localhost:5215/artworks/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(art)
-            })
-            .then(() => location.reload());
+    if (art) {
+        art.year = parseInt(newYear); // Update the local object
+
+        await fetch(`${API_URL}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(art)
         });
+        location.reload();
+    }
 }
