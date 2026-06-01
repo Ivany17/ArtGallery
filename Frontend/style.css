@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+
+/* 1. Museum Atmosphere */
+body {
+    font-family: 'Georgia', serif; /* Classic 'serif' font for a museum feel */
+    background-color: #1c1917;    /* Rich Charcoal */
+    color: #fef3c7;               /* Warm Cream text */
+    padding: 60px 40px;
+    margin: 0;
+}
+
+h1 { 
+    text-align: center; 
+    font-size: 3rem;
+    letter-spacing: 2px;
+    color: #d6d3d1;
+    border-bottom: 2px solid #7f1d1d;
+    display: inline-block;
+    width: 100%;
+    padding-bottom: 20px;
+}
+
+/* 2. Gallery Grid */
+#gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 40px;
+    margin-top: 50px;
+}
+
+/* 3. The Frames (Art Cards) */
+.art-card {
+    background: #292524;
+    padding: 25px;
+    border: 2px solid #44403c;
+    border-radius: 4px; /* Less rounded, more "frame-like" */
+    transition: 0.4s;
+}
+
+.art-card:hover {
+    border-color: #7f1d1d; /* Elegant Red frame on hover */
+    transform: scale(1.02);
+}
+
+/* Add this to your style.css */
+.art-card img {
+    display: block;      /* Prevents extra space underneath */
+    width: 100%;         /* Ensures the image fills the card width */
+    height: auto;        /* Keeps the aspect ratio correct */
+    margin-bottom: 15px; /* Adds space between the image and the title */
+    border: 1px solid #44403c; /* Optional: adds a subtle border to the image */
+}
+
+/* 4. Museum Buttons */
+button {
+    background-color: #7f1d1d; /* Deep Burgundy */
+    color: #fef3c7;
+    border: 1px solid #991b1b;
+    padding: 10px 20px;
+    font-family: 'Georgia', serif;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover { 
+    background-color: #991b1b; 
+    border-color: #b91c1c;
+}
+
+/* 5. Form styling */
+#artForm {
+    background: #292524;
+    padding: 30px;
+    border: 1px solid #44403c;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+input {
+    background: #1c1917;
+    border: 1px solid #44403c;
+    color: #fef3c7;
+    padding: 10px;
+}

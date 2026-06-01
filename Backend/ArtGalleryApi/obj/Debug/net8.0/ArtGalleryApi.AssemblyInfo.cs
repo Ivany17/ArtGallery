@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ArtGalleryApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a797b7389378182e231d43d3ead57a604b6174ee")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+db7bf1268d1240a56589b21dbcc1917cf8df1bcd")]
 [assembly: System.Reflection.AssemblyProductAttribute("ArtGalleryApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ArtGalleryApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
