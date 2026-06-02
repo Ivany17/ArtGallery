@@ -1,5 +1,8 @@
 const API_URL = 'http://localhost:5215/artworks';
 
+let currentPage = 1;
+const PAGE_SIZE = 12;
+
 // 1. Initialize everything once the page is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
     loadGallery();
@@ -31,7 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
 // 2. Fetch and render the gallery
 async function loadGallery() {
     try {
-        const response = await fetch(API_URL);
+        // Fetch only the specific page data
+        const response = await fetch(`${API_URL}?page=${currentPage}&pageSize=${PAGE_SIZE}`);
         if (!response.ok) throw new Error("Could not fetch data");
         const data = await response.json();
         
@@ -46,20 +50,32 @@ async function loadGallery() {
             
             div.innerHTML = `
                 <div style="width: 100%; height: 200px; background-color: #444; overflow: hidden; margin-bottom: 10px;">
-                    <img src="${art.imageUrl}" alt="${art.title}" style="width: 100%; height: 100%; object-fit: cover;" 
+                    <img src="${art.imageUrl}" alt="${art.title}" 
+                        style="width: 100%; height: 100%; object-fit: cover; object-position: top;" 
                         onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg';">
                 </div>
-                <h3>${art.title}</h3>
-                <p>Artist: ${art.artist}</p>
-                <p>Year: ${art.year}</p>
-                <button onclick="deleteArt(${art.id})">Delete</button>
-                <button onclick="editArt(${art.id})">Edit</button>
+                <div class="text-info">
+                    <h3>${art.title}</h3>
+                    <p>Artist: ${art.artist}</p>
+                    <p>Year: ${art.year}</p>
+                </div>
+                <div class="button-container">
+                    <button onclick="deleteArt(${art.id})">Delete</button>
+                    <button onclick="editArt(${art.id})">Edit</button>
+                </div>
             `;
             gallery.appendChild(div);
         });
     } catch (error) {
         console.error("Gallery load error:", error);
     }
+}
+
+function changePage(direction) {
+    currentPage += direction;
+    if (currentPage < 1) currentPage = 1; // Prevent negative pages
+    loadGallery();
+    document.getElementById('pageNumber').innerText = `Page ${currentPage}`;
 }
 
 // 3. Handle delete operation
@@ -73,24 +89,19 @@ async function editArt(id) {
     const newYear = prompt("Enter new year:");
     if (!newYear) return;
 
-    // Fetch the latest data to find the correct object
-    const response = await fetch(API_URL);
-    const data = await response.json();
+    // Fetch ONLY the specific piece you are editing
+    const response = await fetch(`${API_URL}/${id}`);
+    if (!response.ok) return;
     
-    // Use lowercase 'id' to find the art piece
-    const art = data.find(a => a.id === id);
+    const art = await response.json();
 
-    if (art) {
-        // Update the lowercase 'year' property
-        art.year = parseInt(newYear);
-        
-        // Send the PUT request with the updated object
-        await fetch(`${API_URL}/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(art)
-        });
-        
-        loadGallery();
-    }
+    art.year = parseInt(newYear);
+    
+    await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(art)
+    });
+    
+    loadGallery();
 }

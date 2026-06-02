@@ -58,13 +58,24 @@ app.UseCors("AllowAll");
 
 // GET: Retrieve the list of all artworks
 // Use "async" and wrap the return in "Task"
-app.MapGet("/artworks", async (AppDbContext db) =>
+app.MapGet("/artworks", async (AppDbContext db, int page = 1, int pageSize = 12) =>
 {
-    // Await ensures we don't block the thread
-    return await db.Artworks.ToListAsync();
+    // Ensure we don't have negative pages
+    if (page < 1) page = 1;
+
+    return await db.Artworks
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
 })
 .WithName("GetArtworks")
 .WithOpenApi();
+
+app.MapGet("/artworks/{id}", async (int id, AppDbContext db) =>
+{
+    var art = await db.Artworks.FindAsync(id);
+    return art is not null ? Results.Ok(art) : Results.NotFound();
+});
 
 // POST: Add a new art piece to the list
 app.MapPost("/artworks", async (ArtPiece newArt, AppDbContext db) =>
