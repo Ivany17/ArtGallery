@@ -51,7 +51,8 @@ async function loadGallery() {
             div.innerHTML = `
                 <div style="width: 100%; height: 200px; background-color: #444; overflow: hidden; margin-bottom: 10px;">
                     <img src="${art.imageUrl}" alt="${art.title}" 
-                        style="width: 100%; height: 100%; object-fit: cover; object-position: top;" 
+                        style="width: 100%; height: 100%; object-fit: cover; object-position: top; cursor: pointer;" 
+                        onclick="openModal('${art.imageUrl}')"
                         onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg';">
                 </div>
                 <div class="text-info">
@@ -105,3 +106,34 @@ async function editArt(id) {
     
     loadGallery();
 }
+
+// Function to show the modal
+function openModal(imageSrc) {
+    const modal = document.getElementById("imageModal");
+    const modalImg = document.getElementById("fullImage");
+    if (modal && modalImg) {
+        modal.style.display = "block";
+        modalImg.src = imageSrc;
+    }
+}
+
+// Attach listeners once DOM is fully ready
+document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("imageModal");
+    const closeBtn = document.querySelector(".close");
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = "none";
+        });
+    }
+
+    if (modal) {
+        modal.addEventListener('click', (event) => {
+            // Close only if clicking the background, not the image itself
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+    }
+});
