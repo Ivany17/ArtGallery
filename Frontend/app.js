@@ -2,6 +2,7 @@ const API_URL = 'http://localhost:5215/artworks';
 
 let currentPage = 1;
 const PAGE_SIZE = 12;
+let editingId = null;
 
 // 1. Initialize everything once the page is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
@@ -87,23 +88,46 @@ async function deleteArt(id) {
 
 // 4. Handle edit operation
 async function editArt(id) {
-    const newYear = prompt("Enter new year:");
-    if (!newYear) return;
-
-    // Fetch ONLY the specific piece you are editing
     const response = await fetch(`${API_URL}/${id}`);
-    if (!response.ok) return;
-    
     const art = await response.json();
 
-    art.year = parseInt(newYear);
-    
-    await fetch(`${API_URL}/${id}`, {
+    // Fill the inputs with current data
+    document.getElementById('editTitle').value = art.title;
+    document.getElementById('editArtist').value = art.artist;
+    document.getElementById('editYear').value = art.year;
+    document.getElementById('editImageUrl').value = art.imageUrl;
+
+    editingId = id; // Remember which ID we are editing
+    document.getElementById('editModal').style.display = 'block';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+const editModal = document.getElementById("editModal");
+    editModal.addEventListener('click', (event) => {
+        if (event.target === editModal) {
+            closeEditModal();
+        }
+    });
+
+async function saveEdit() {
+    const updatedArt = {
+        id: editingId,
+        title: document.getElementById('editTitle').value,
+        artist: document.getElementById('editArtist').value,
+        year: parseInt(document.getElementById('editYear').value),
+        imageUrl: document.getElementById('editImageUrl').value
+    };
+
+    await fetch(`${API_URL}/${editingId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(art)
+        body: JSON.stringify(updatedArt)
     });
-    
+
+    closeEditModal();
     loadGallery();
 }
 
